@@ -31,6 +31,18 @@ namespace olx_api.Controllers
                 return BadRequest("Chat history requires two distinct users.");
 
             var messages = await _messageRepo.GetChatHistoryAsync(userId.Value, otherUserId, listingId);
+            var deletedAt = await _context.ConversationDeletions
+                .Where(d =>
+                    d.UserId == userId.Value &&
+                    d.OtherUserId == otherUserId &&
+                    d.ListingId == listingId)
+                .OrderByDescending(d => d.DeletedAt)
+                .Select(d => (DateTime?)d.DeletedAt)
+                .FirstOrDefaultAsync();
+
+            if (deletedAt.HasValue)
+                messages = messages.Where(m => m.SentAt > deletedAt.Value);
+
             return Ok(messages.Select(m => new MessageResponseDto(
                 m.Id,
                 m.Content,
@@ -59,6 +71,28 @@ namespace olx_api.Controllers
             message.IsRead = true;
             await _context.SaveChangesAsync();
 
+            return NoContent();
+        }
+
+        [HttpDelete("conversations")]
+        public async Task<IActionResult> DeleteConversation(DeleteConversationDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            if (dto.OtherUserId == userId.Value)
+                return BadRequest("Conversation requires two distinct users.");
+
+            await _context.ConversationDeletions.AddAsync(new Models.ConversationDeletion
+            {
+                UserId = userId.Value,
+                OtherUserId = dto.OtherUserId,
+                ListingId = dto.ListingId,
+                DeletedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
