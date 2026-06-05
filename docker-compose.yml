@@ -7,9 +7,9 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: olx_db
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
@@ -29,11 +29,15 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - DB_CONNECTION=Server=db;Port=3306;Database=olx_db;Uid=root;Pwd=rootpassword;
+      - ASPNETCORE_URLS=http://+:8080
+      - DB_CONNECTION=Server=db;Port=3306;Database=olx_db;Uid=root;Pwd=root;
       - JWT_SECRET_KEY=SuperSecretUltraLongSecurityKeyForOlxClone2026!
       - JWT_ACCESS_TOKEN_MINUTES=30
       - CORS_ORIGINS=http://localhost:3000,http://localhost:19006
       - AUTO_APPLY_MIGRATIONS=true
+      - BREVO_API_KEY=
+      - BREVO_SENDER_EMAIL=
+      - BREVO_SENDER_NAME=OLX Clone
       - ADMIN_EMAIL=admin@olxclone.local
       - ADMIN_PASSWORD=Admin@12345
       - ADMIN_FULL_NAME=Platform Admin
