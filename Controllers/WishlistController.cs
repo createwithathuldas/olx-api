@@ -40,6 +40,38 @@ namespace olx_api.Controllers
             return Ok(listings.Select(MapListing));
         }
 
+        [HttpPost("{listingId:guid}")]
+        public async Task<ActionResult<object>> ToggleWishlistItem(Guid listingId)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var listingExists = await _context.Listings.AnyAsync(l => l.Id == listingId && l.Status != "Deleted");
+            if (!listingExists)
+                return NotFound();
+
+            var favorite = await _context.Favorites.FindAsync(userId.Value, listingId);
+            var isWishlisted = favorite == null;
+
+            if (favorite == null)
+            {
+                await _context.Favorites.AddAsync(new Favorite
+                {
+                    UserId = userId.Value,
+                    ListingId = listingId,
+                    AddedAt = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                _context.Favorites.Remove(favorite);
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { listingId, isWishlisted });
+        }
+
         private Guid? GetCurrentUserId()
         {
             var value =
