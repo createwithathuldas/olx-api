@@ -17,6 +17,7 @@ namespace olx_api.Repositories
                 .Include(l => l.Images)
                 .Include(l => l.Category)
                 .Include(l => l.User)
+                .Include(l => l.City)
                 .Where(l => l.Status == "Active");
 
             if (!string.IsNullOrEmpty(search))
@@ -26,7 +27,7 @@ namespace olx_api.Repositories
                 query = query.Where(l => l.CategoryId == categoryId.Value);
 
             if (!string.IsNullOrEmpty(city))
-                query = query.Where(l => l.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(l => l.City.Name.Equals(city, StringComparison.OrdinalIgnoreCase));
 
             // Update inside Repositories/ListingRepository.cs -> GetAllAsync
             return await query
