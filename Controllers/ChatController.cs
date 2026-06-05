@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using olx_api.Data;
 using olx_api.DTOs;
 using olx_api.Repositories;
 using System.Security.Claims;
@@ -10,10 +12,12 @@ namespace olx_api.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IMessageRepository _messageRepo;
+        private readonly ApplicationDbContext _context;
 
-        public ChatController(IMessageRepository messageRepo)
+        public ChatController(IMessageRepository messageRepo, ApplicationDbContext context)
         {
             _messageRepo = messageRepo;
+            _context = context;
         }
 
         [HttpGet("history")]
@@ -36,6 +40,26 @@ namespace olx_api.Controllers
                 m.Sender.FullName,
                 m.ReceiverId
             )));
+        }
+
+        [HttpPatch("messages/{id:guid}/read")]
+        public async Task<IActionResult> MarkRead(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var message = await _context.Messages.FirstOrDefaultAsync(m => m.Id == id);
+            if (message == null)
+                return NotFound();
+
+            if (message.ReceiverId != userId.Value)
+                return Forbid();
+
+            message.IsRead = true;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private Guid? GetCurrentUserId()
