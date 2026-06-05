@@ -25,7 +25,7 @@ namespace olx_api.Services
 
             if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
             {
-                _logger.LogInformation("Password reset OTP for {Email}: {Otp}", email, otp);
+                _logger.LogWarning("Brevo credentials missing. Password reset OTP for {Email}: {Otp}", email, otp);
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace olx_api.Services
 
             if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
             {
-                _logger.LogInformation("Registration OTP for {Email}: {Otp}", email, otp);
+                _logger.LogWarning("Brevo credentials missing. Registration OTP for {Email}: {Otp}", email, otp);
                 return;
             }
 
@@ -71,8 +71,8 @@ namespace olx_api.Services
             };
 
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            request.Headers.Add("xapikey", apiKey);
+            request.Headers.Add("api-key", apiKey);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request);
