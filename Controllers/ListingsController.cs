@@ -54,6 +54,16 @@ namespace olx_api.Controllers
             return Ok(MapListing(listing));
         }
 
+        [HttpGet("{id:guid}/similar")]
+        public async Task<ActionResult<IEnumerable<ListingResponseDto>>> GetSimilarListings(Guid id, [FromQuery] int limit = 12)
+        {
+            if (await _listingRepo.GetByIdAsync(id) == null)
+                return NotFound();
+
+            var listings = await _listingRepo.GetSimilarAsync(id, Math.Clamp(limit, 1, 50));
+            return Ok(listings.Select(MapListing));
+        }
+
         private static ListingResponseDto MapListing(Listing listing)
         {
             var city = listing.City;

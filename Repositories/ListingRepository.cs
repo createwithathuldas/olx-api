@@ -88,6 +88,34 @@ namespace olx_api.Repositories
                         .ThenInclude(s => s.Country)
                 .FirstOrDefaultAsync(l => l.Id == id && l.Status != "Deleted");
 
+        public async Task<IEnumerable<Listing>> GetSimilarAsync(Guid id, int limit)
+        {
+            var source = await _context.Listings
+                .Include(l => l.City)
+                .FirstOrDefaultAsync(l => l.Id == id && l.Status != "Deleted");
+
+            if (source == null)
+                return Enumerable.Empty<Listing>();
+
+            return await _context.Listings
+                .Include(l => l.Images)
+                .Include(l => l.Category)
+                .Include(l => l.User)
+                .Include(l => l.City)
+                    .ThenInclude(c => c.State)
+                        .ThenInclude(s => s.Country)
+                .Where(l =>
+                    l.Id != id &&
+                    l.Status == "Active" &&
+                    l.CategoryId == source.CategoryId)
+                .OrderByDescending(l => l.CityId == source.CityId)
+                .ThenByDescending(l => l.City.StateId == source.City.StateId)
+                .ThenByDescending(l => l.IsFeatured)
+                .ThenByDescending(l => l.LastBoostedAt)
+                .Take(limit)
+                .ToListAsync();
+        }
+
         public async Task AddAsync(Listing listing) => await _context.Listings.AddAsync(listing);
         public async Task UpdateAsync(Listing listing) => await Task.Run(() => _context.Listings.Update(listing));
         public async Task DeleteAsync(Listing listing) => await Task.Run(() => _context.Listings.Remove(listing));

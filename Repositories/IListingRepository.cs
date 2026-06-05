@@ -19,6 +19,7 @@ namespace olx_api.Repositories
             int pageSize
         );
         Task<Listing?> GetByIdAsync(Guid id);
+        Task<IEnumerable<Listing>> GetSimilarAsync(Guid id, int limit);
         Task AddAsync(Listing listing);
         Task UpdateAsync(Listing listing);
         Task DeleteAsync(Listing listing);
