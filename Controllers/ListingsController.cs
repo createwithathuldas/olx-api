@@ -175,6 +175,35 @@ namespace olx_api.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:guid}/sold")]
+        public async Task<ActionResult<ListingResponseDto>> MarkListingSold(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var listing = await _listingRepo.GetByIdAsync(id);
+            if (listing == null)
+                return NotFound();
+
+            if (listing.UserId != userId.Value)
+                return Forbid();
+
+            listing.Status = "Sold";
+            var listingMessages = await _context.Messages
+                .Where(m => m.ListingId == id && !m.IsRead)
+                .ToListAsync();
+
+            foreach (var message in listingMessages)
+                message.IsRead = true;
+
+            await _listingRepo.UpdateAsync(listing);
+            await _listingRepo.SaveChangesAsync();
+
+            var updated = await _listingRepo.GetByIdAsync(id);
+            return Ok(MapListing(updated!));
+        }
+
         private Guid? GetCurrentUserId()
         {
             var value =
