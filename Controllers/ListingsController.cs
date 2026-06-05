@@ -204,6 +204,31 @@ namespace olx_api.Controllers
             return Ok(MapListing(updated!));
         }
 
+        [HttpPatch("{id:guid}/boost")]
+        public async Task<ActionResult<ListingResponseDto>> BoostListing(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var listing = await _listingRepo.GetByIdAsync(id);
+            if (listing == null)
+                return NotFound();
+
+            if (listing.UserId != userId.Value)
+                return Forbid();
+
+            if (listing.Status != "Active")
+                return BadRequest("Only active listings can be boosted.");
+
+            listing.LastBoostedAt = DateTime.UtcNow;
+            await _listingRepo.UpdateAsync(listing);
+            await _listingRepo.SaveChangesAsync();
+
+            var updated = await _listingRepo.GetByIdAsync(id);
+            return Ok(MapListing(updated!));
+        }
+
         private Guid? GetCurrentUserId()
         {
             var value =
