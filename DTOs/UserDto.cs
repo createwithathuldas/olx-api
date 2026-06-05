@@ -1,6 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace olx_api.DTOs
 {
-    public record RegisterDto(string FullName, string Email, string Password, string PhoneNumber);
+    public record RegisterDto(
+        [Required] string FullName, 
+        [Required, EmailAddress] string Email, 
+        [Required, MinLength(8, ErrorMessage = "Password must be at least 8 characters.")] string Password, 
+        [Required] string ConfirmPassword,
+        [Required] string PhoneNumber
+    );
+    
     public record LoginDto(string Identifier, string Password);
     public record RefreshTokenRequestDto(string Token, string RefreshToken);
     public record ForgotPasswordDto(string Email);
