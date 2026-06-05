@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: olx_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: olx_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: olx_backend_api
+    restart: always
+    ports:
+      - "5141:5141"
+    env_file:
+      - .env
+    environment:
+      - DB_CONNECTION=Server=db;Port=3306;Database=olx_db;Uid=root;Pwd=root;
+      - ASPNETCORE_URLS=http://+:5141
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/wwwroot/uploads
+
+volumes:
+  db_data:
+  backend_uploads:
