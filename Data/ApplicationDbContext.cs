@@ -15,6 +15,13 @@ namespace olx_api.Data
         public DbSet<Message> Messages { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<State> States { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Banner> Banners { get; set; }
+        public DbSet<StaticPage> StaticPages { get; set; }
+        public DbSet<InAppNotification> InAppNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,6 +80,24 @@ namespace olx_api.Data
             modelBuilder.Entity<Listing>()
                 .Property(l => l.Price)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Report>()
+    .HasOne(r => r.Reporter)
+    .WithMany()
+    .HasForeignKey(r => r.ReporterId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.ReportedListing)
+                .WithMany()
+                .HasForeignKey(r => r.ReportedListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<City>()
+                .HasOne(c => c.State)
+                .WithMany(s => s.Cities)
+                .HasForeignKey(c => c.StateId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -5,25 +5,20 @@ namespace olx_api.Models
     public class Listing
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        [Required, MaxLength(150)]
         public string Title { get; set; }
-        [Required, MaxLength(2000)]
         public string Description { get; set; }
         public decimal Price { get; set; }
         public bool IsNegotiable { get; set; }
+        
+        // UPDATED: Removed string State/City. Linked to relational DB City
+        public int CityId { get; set; }
+        public City City { get; set; }
 
-        [Required]
-        public string State { get; set; } // e.g., Kerala, Tamil Nadu
-        [Required]
-        public string City { get; set; }
-
-        public string Status { get; set; } = "Active"; // Active, Sold, Moderation
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        // NEW PROPERTIES BELOW
+        public string Condition { get; set; } // "New", "Used"
+        public string Status { get; set; } = "Active"; // Active, Draft, Sold, Pending, Rejected
         public bool IsFeatured { get; set; } = false;
         public DateTime LastBoostedAt { get; set; } = DateTime.UtcNow;
-
-        public string CustomAttributesJson { get; set; }
 
         // Foreign Keys & Navigation
         public Guid UserId { get; set; }

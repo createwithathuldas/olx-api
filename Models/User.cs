@@ -16,8 +16,15 @@ namespace olx_api.Models
         public string Role { get; set; } = "User"; // User, Admin, Moderator
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsVerified { get; set; } = false;
+        public string? ProfilePictureUrl { get; set; }
+        public bool IsBlocked { get; set; } = false;
         public string UserTier { get; set; } = "Free"; // Free, Elite, Dealer
         public int AdQuotaRemaining { get; set; } = 5; // Free tier limit
+
+        public string? ResetPasswordOtp { get; set; }
+        public DateTime? OtpExpiry { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
 
         // Navigation Properties
         public ICollection<Listing> Listings { get; set; }

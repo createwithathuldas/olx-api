@@ -15,6 +15,10 @@ namespace olx_api.Extensions
             // Register Repositories
             services.AddScoped<IListingRepository, ListingRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
+            // AdminRepository implementation not found; remove or replace once available
+            // services.AddScoped<IAdminRepository, AdminRepository>();
+            // LocationRepository implementation not found; remove or replace once available
+            // services.AddScoped<ILocationRepository, LocationRepository>();
 
             // Register Services (e.g., EmailService, TokenService)
             // services.AddScoped<IEmailService, BrevoEmailService>();
@@ -35,7 +39,7 @@ namespace olx_api.Extensions
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
-                    
+
                     // Wire up authentication for real-time SignalR hubs
                     options.Events = new JwtBearerEvents
                     {
