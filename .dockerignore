@@ -1,0 +1,15 @@
+**/.git
+**/.github
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/out
+**/*.user
+**/*.suo
+**/*.userprefs
+.env
+.env.local
+.env.development
+.env.production
+.env.staging

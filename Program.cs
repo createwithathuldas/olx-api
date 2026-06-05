@@ -31,10 +31,10 @@ if (string.IsNullOrWhiteSpace(connectionString) || connectionString == "DB_CONNE
     throw new InvalidOperationException("Database connection string is missing. Set DB_CONNECTION in .env or configuration.");
 }
 
-// 3. Setup Database Connection (SQL Server)
+// 3. Setup Database Connection (MySQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString);
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)));
 });
 
 // 4. Inject Modular Custom Configurations (JWT Setup, Repositories, etc.)
