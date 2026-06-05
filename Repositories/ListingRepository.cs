@@ -1,4 +1,3 @@
-// Repositories/ListingRepository.cs
 using Microsoft.EntityFrameworkCore;
 using olx_api.Data;
 using olx_api.Models;
@@ -9,7 +8,10 @@ namespace olx_api.Repositories
     {
         private readonly ApplicationDbContext _context;
 
-        public ListingRepository(ApplicationDbContext context) => _context = context;
+        public ListingRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task<(IEnumerable<Listing> Items, int TotalCount)> GetAllAsync(
             string? search,
@@ -21,6 +23,7 @@ namespace olx_api.Repositories
             string? condition,
             string? status,
             string? specifications,
+            string? datePosted,
             int page,
             int pageSize
         )
@@ -47,7 +50,9 @@ namespace olx_api.Repositories
                 query = query.Where(l => l.Title.Contains(search) || l.Description.Contains(search));
 
             if (categoryId.HasValue)
+            {
                 query = query.Where(l => l.CategoryId == categoryId.Value);
+            }
 
             if (cityId.HasValue)
                 query = query.Where(l => l.CityId == cityId.Value);
@@ -67,6 +72,26 @@ namespace olx_api.Repositories
             if (!string.IsNullOrWhiteSpace(specifications))
                 query = query.Where(l => l.SpecificationsJson != null && l.SpecificationsJson.Contains(specifications));
 
+            if (!string.IsNullOrWhiteSpace(datePosted))
+            {
+                var lowerDate = datePosted.ToLowerInvariant();
+                if (lowerDate == "today")
+                {
+                    var today = DateTime.UtcNow.Date;
+                    query = query.Where(l => l.CreatedAt >= today);
+                }
+                else if (lowerDate == "last3days")
+                {
+                    var threeDaysAgo = DateTime.UtcNow.AddDays(-3);
+                    query = query.Where(l => l.CreatedAt >= threeDaysAgo);
+                }
+                else if (lowerDate == "lastweek")
+                {
+                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    query = query.Where(l => l.CreatedAt >= oneWeekAgo);
+                }
+            }
+
             var totalCount = await query.CountAsync();
             var items = await query
                 .OrderByDescending(l => l.IsFeatured)      // 1st Priority: Featured ads pin to top
@@ -78,8 +103,9 @@ namespace olx_api.Repositories
             return (items, totalCount);
         }
 
-        public async Task<Listing?> GetByIdAsync(Guid id) =>
-            await _context.Listings
+        public async Task<Listing?> GetByIdAsync(Guid id)
+        {
+            return await _context.Listings
                 .Include(l => l.Images)
                 .Include(l => l.Category)
                 .Include(l => l.User)
@@ -87,6 +113,7 @@ namespace olx_api.Repositories
                     .ThenInclude(c => c.State)
                         .ThenInclude(s => s.Country)
                 .FirstOrDefaultAsync(l => l.Id == id && l.Status != "Deleted");
+        }
 
         public async Task<IEnumerable<Listing>> GetSimilarAsync(Guid id, int limit)
         {
@@ -116,9 +143,26 @@ namespace olx_api.Repositories
                 .ToListAsync();
         }
 
-        public async Task AddAsync(Listing listing) => await _context.Listings.AddAsync(listing);
-        public async Task UpdateAsync(Listing listing) => await Task.Run(() => _context.Listings.Update(listing));
-        public async Task DeleteAsync(Listing listing) => await Task.Run(() => _context.Listings.Remove(listing));
-        public async Task<bool> SaveChangesAsync() => await _context.SaveChangesAsync() > 0;
+        public async Task AddAsync(Listing listing)
+        {
+            await _context.Listings.AddAsync(listing);
+        }
+
+        public async Task UpdateAsync(Listing listing)
+        {
+            _context.Listings.Update(listing);
+            await Task.CompletedTask;
+        }
+
+        public async Task DeleteAsync(Listing listing)
+        {
+            _context.Listings.Remove(listing);
+            await Task.CompletedTask;
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
