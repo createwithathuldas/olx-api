@@ -1,15 +1,25 @@
-**/.git
-**/.github
-**/.vs
-**/.vscode
-**/bin
-**/obj
-**/out
-**/*.user
-**/*.suo
-**/*.userprefs
+# Ignore dotnet build folders
+bin/
+obj/
+out/
+
+# Ignore local config files and secrets
 .env
 .env.local
 .env.development
 .env.production
 .env.staging
+
+# Ignore git and IDE configurations
+.git/
+.gitignore
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstate
+
+# Ignore logs and tests folder if desired (tests are compiled separately)
+Tests/
+C:Users/athul.das/.gemini/antigravity-ide/

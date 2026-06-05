@@ -25,7 +25,7 @@ namespace olx_api.Services
 
             if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
             {
-                _logger.LogInformation("Password reset OTP for {Email}: {Otp}", email, otp);
+                _logger.LogWarning("Brevo credentials missing. Password reset OTP for {Email}: {Otp}", email, otp);
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace olx_api.Services
 
             if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
             {
-                _logger.LogInformation("Registration OTP for {Email}: {Otp}", email, otp);
+                _logger.LogWarning("Brevo credentials missing. Registration OTP for {Email}: {Otp}", email, otp);
                 return;
             }
 
