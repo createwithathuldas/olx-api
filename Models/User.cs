@@ -21,6 +21,8 @@ namespace olx_api.Models
         public string UserTier { get; set; } = "Free"; // Free, Elite, Dealer
         public int AdQuotaRemaining { get; set; } = 5; // Free tier limit
 
+
+
         public string? ResetPasswordOtp { get; set; }
         public DateTime? OtpExpiry { get; set; }
 
