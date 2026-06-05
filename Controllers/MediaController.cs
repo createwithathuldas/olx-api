@@ -113,7 +113,7 @@ namespace olx_api.Controllers
         [HttpPost("upload/profile")]
         [RequestSizeLimit(10_000_000)]
         [Authorize]
-        public async Task<ActionResult<object>> UploadProfilePicture([FromForm] IFormFile file)
+        public async Task<ActionResult<object>> UploadProfilePicture(IFormFile file)
         {
             var userId = GetCurrentUserId();
             if (userId == null)
