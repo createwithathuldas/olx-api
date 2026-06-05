@@ -92,6 +92,7 @@ namespace olx_api.Repositories
                     .ThenInclude(c => c.State)
                         .ThenInclude(s => s.Country)
                 .FirstOrDefaultAsync(l => l.Id == id && l.Status != "Deleted");
+        }
 
         public async Task<IEnumerable<Listing>> GetSimilarAsync(Guid id, int limit)
         {
