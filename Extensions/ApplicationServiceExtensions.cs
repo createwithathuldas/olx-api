@@ -17,8 +17,7 @@ namespace olx_api.Extensions
             services.AddScoped<IMessageRepository, MessageRepository>();
             // AdminRepository implementation not found; remove or replace once available
             // services.AddScoped<IAdminRepository, AdminRepository>();
-            // LocationRepository implementation not found; remove or replace once available
-            // services.AddScoped<ILocationRepository, LocationRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
 
             // Register Services (e.g., EmailService, TokenService)
             // services.AddScoped<IEmailService, BrevoEmailService>();
